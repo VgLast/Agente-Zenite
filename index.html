@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZêniteExplicação · Sistema de Inscrições</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Import Map para Firebase -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
+            }
+        }
+    </script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- NOTIFICAÇÕES GLOBAIS -->
+        <div id="notificationArea" class="notification-container"></div>
+        
+        <!-- TELA DE LOGIN -->
+        <div class="login-container" id="loginScreen">
+            <div class="login-card glass">
+                <div class="logo-area">
+                    <i class="fas fa-meteor"></i>
+                    <h1>Zênite<span>Explicação</span></h1>
+                </div>
+                <p class="subtitle">acesso ao painel de inscrições</p>
+                
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="loginEmail" placeholder="Email" autocomplete="off">
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Senha" autocomplete="off">
+                </div>
+                
+                <button class="btn-primary" id="loginBtn">
+                    <span>Entrar</span> 
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                
+                <div class="register-link">
+                    <a href="#" id="showAgentRequest">
+                        <i class="fas fa-user-plus"></i> Pedir vaga de agente
+                    </a>
+                </div>
+                
+                <div class="demo-credentials glass">
+                    <p><i class="fas fa-info-circle"></i> Demo:</p>
+                    <small>Admin: admin@zenite.com / admin123</small>
+                    <small>Agente: joao@zenite.com / 123456</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- PEDIDO DE VAGA -->
+        <div class="modal hidden" id="requestScreen">
+            <div class="modal-content glass modal-large">
+                <h2><i class="fas fa-pen"></i> Pedido de vaga — Agente de Inscrição</h2>
+                
+                <div class="request-grid">
+                    <input type="text" placeholder="Nome completo" id="reqNome" class="input-field">
+                    <input type="text" placeholder="Número de telefone" id="reqNumero" class="input-field">
+                    <input type="number" placeholder="Idade" id="reqIdade" class="input-field">
+                    <input type="text" placeholder="Província" id="reqProvincia" class="input-field">
+                    <input type="text" placeholder="Distrito" id="reqDistrito" class="input-field">
+                    <input type="text" placeholder="Bairro" id="reqBairro" class="input-field">
+                    <input type="text" placeholder="Nº de pagamento (MPesa/Emola/MKash)" id="reqPagamento" class="input-field">
+                    <input type="text" placeholder="Nº do BI" id="reqBi" class="input-field">
+                    <input type="text" placeholder="Classe (ex: 12ª)" id="reqClasse" class="input-field">
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-secondary" id="cancelRequest">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn-primary" id="submitRequest">
+                        <i class="fas fa-paper-plane"></i> Enviar pedido
+                    </button>
+                </div>
+                
+                <p class="footnote">A administração analisará seu pedido e criará seu acesso.</p>
+            </div>
+        </div>
+
+        <!-- PAINEL DO AGENTE -->
+        <div class="dashboard-agent hidden" id="agentPanel">
+            <div class="sidebar glass">
+                <div class="sidebar-header">
+                    <i class="fas fa-meteor"></i>
+                    <span>Zênite</span>
+                </div>
+                
+                <div class="sidebar-user">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="agentSideName">Carregando...</span>
+                </div>
+                
+<ul class="sidebar-nav">
+    <li class="active" data-tab="perfil">
+        <i class="fas fa-id-badge"></i> Perfil
+    </li>
+    <li data-tab="comissao">
+        <i class="fas fa-coins"></i> Comissão
+    </li>
+    <!-- NOVA ABA: Histórico de Pagamentos -->
+    <li data-tab="historico">
+        <i class="fas fa-history"></i> Meus Pagamentos
+    </li>
+    <li data-tab="novoAluno">
+        <i class="fas fa-user-graduate"></i> Novo aluno
+    </li>
+    <li data-tab="progresso">
+        <i class="fas fa-chart-line"></i> Progresso
+    </li>
+</ul>
+                
+                <button class="logout-btn" id="logoutAgent">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+            
+            <div class="content-area" id="agentContent">
+                <!-- Perfil -->
+                <div class="tab-pane active" id="tab-perfil">
+                    <h2><i class="fas fa-id-badge"></i> Perfil do agente</h2>
+                    <div class="profile-grid glass" id="agentProfileData"></div>
+                </div>
+                
+                <!-- Comissão -->
+                <div class="tab-pane" id="tab-comissao">
+                    <h2><i class="fas fa-coins"></i> Comissão</h2>
+                    <div class="commission-card glass">
+                        <p><i class="fas fa-tag"></i> Cada 10 alunos inscritos = <strong>270 MZN</strong></p>
+                        <div id="commissionDetails" class="commission-details">Calculando...</div>
+                    </div>
+                </div>
+                <!-- Histórico de Pagamentos (NOVA ABA) -->
+<div class="tab-pane" id="tab-historico">
+    <h2><i class="fas fa-history"></i> Meu Histórico de Pagamentos</h2>
+    
+    <div class="historico-card glass">
+        <!-- Cards de resumo -->
+        <div class="historico-resumo">
+            <div class="resumo-item">
+                <span class="resumo-label">Total Recebido</span>
+                <span class="resumo-valor" id="totalRecebido">0 MZN</span>
+            </div>
+            <div class="resumo-item">
+                <span class="resumo-label">Último Pagamento</span>
+                <span class="resumo-valor" id="ultimoPagamento">—</span>
+            </div>
+            <div class="resumo-item">
+                <span class="resumo-label">Total de Pagamentos</span>
+                <span class="resumo-valor" id="totalPagamentos">0</span>
+            </div>
+        </div>
+        
+        <!-- Lista de pagamentos -->
+        <h3 style="color: white; margin: 20px 0 15px 0;">
+            <i class="fas fa-list"></i> Histórico Completo
+        </h3>
+        <div class="historico-lista" id="historicoPagamentosList">
+            <p class="empty-message">Carregando histórico...</p>
+        </div>
+    </div>
+</div>
+                <!-- Novo aluno -->
+                <div class="tab-pane" id="tab-novoAluno">
+                    <h2><i class="fas fa-user-graduate"></i> Cadastrar novo aluno</h2>
+                    
+                    <form id="newStudentForm" class="form-aluno glass">
+                        <input type="text" placeholder="Nome completo" id="alunoNome" class="input-field" required>
+                        <input type="text" placeholder="Número do aluno / contacto" id="alunoNumero" class="input-field">
+                        <input type="text" placeholder="Classe (ex: 10ª)" id="alunoClasse" class="input-field" required>
+                        <input type="text" placeholder="Província" id="alunoProvincia" class="input-field">
+                        <input type="text" placeholder="Distrito" id="alunoDistrito" class="input-field">
+                        <input type="date" id="alunoDataNasc" class="input-field">
+                        
+                        <button type="submit" class="btn-primary btn-full">
+                            <i class="fas fa-save"></i> Guardar aluno
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Progresso -->
+                <div class="tab-pane" id="tab-progresso">
+                    <h2><i class="fas fa-chart-line"></i> Progresso dos alunos</h2>
+                    <div class="progress-list glass" id="progressList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL DO ADMINISTRADOR -->
+        <div class="dashboard-admin hidden" id="adminPanel">
+            <div class="admin-sidebar glass">
+                <div class="admin-header">
+                    <i class="fas fa-crown"></i> Admin
+                </div>
+                
+                <ul>
+                    <li class="active" data-adminview="main">
+                        <i class="fas fa-tachometer-alt"></i> Gestão de Agentes
+                    </li>
+                    <li data-adminview="requests">
+                        <i class="fas fa-clipboard-list"></i> Pedidos de Vaga
+                        <span id="requestsBadge" class="badge">0</span>
+                    </li>
+                </ul>
+                
+                <button class="logout-btn" id="logoutAdmin">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+            
+            <div class="admin-main" id="adminMainView">
+                <!-- TOOLBAR PRINCIPAL -->
+                <div class="admin-toolbar">
+                    <button class="btn-primary" id="showCreateAgentModalBtn">
+                        <i class="fas fa-user-plus"></i> Criar agente
+                    </button>
+                    
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="adminSearchInput" placeholder="Procurar agente (nome ou ID)">
+                    </div>
+                </div>
+                
+                <!-- TABELA DE AGENTES -->
+                <div class="agents-table glass" id="agentsTableView">
+                    <h3>
+                        <i class="fas fa-users"></i> Lista de agentes 
+                        <span id="agentCount">(0)</span>
+                    </h3>
+                    
+                    <div class="table-responsive">
+                        <table id="agentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Idade</th>
+                                    <th>Contacto</th>
+                                    <th>Comissão</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agentsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- VIEW DE PEDIDOS -->
+                <div class="requests-view hidden" id="requestsView">
+                    <h2>
+                        <i class="fas fa-clipboard-list"></i> 
+                        Pedidos de vaga de agente
+                    </h2>
+                    
+                    <div id="requestsList" class="requests-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL CRIAR AGENTE -->
+        <div class="modal hidden" id="createAgentModal">
+            <div class="modal-content glass modal-large">
+                <h3><i class="fas fa-user-tie"></i> Criar novo agente</h3>
+                
+                <div class="modal-grid">
+                    <input type="text" placeholder="Nome completo" id="createNome" class="input-field">
+                    <input type="email" placeholder="Email (será o login)" id="createEmail" class="input-field">
+                    <input type="text" placeholder="Número / telefone" id="createNumero" class="input-field">
+                    <input type="number" placeholder="Idade" id="createIdade" class="input-field">
+                    <input type="text" placeholder="Província" id="createProvincia" class="input-field">
+                    <input type="text" placeholder="Distrito" id="createDistrito" class="input-field">
+                    <input type="text" placeholder="Bairro" id="createBairro" class="input-field">
+                    <input type="text" placeholder="Nº pagamento" id="createPagamento" class="input-field">
+                    <input type="text" placeholder="Nº do BI" id="createBi" class="input-field">
+                    <input type="text" placeholder="Classe" id="createClasse" class="input-field">
+                </div>
+                
+                <p class="auto-info">
+                    <i class="fas fa-info-circle"></i> 
+                    Senha será gerada automaticamente
+                </p>
+                
+                <div class="modal-actions">
+                    <button class="btn-secondary" id="cancelCreateAgent">
+                        <i class="fas fa-ban"></i> Cancelar
+                    </button>
+                    <button class="btn-primary" id="confirmCreateAgent">
+                        <i class="fas fa-check"></i> Criar agente
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE DETALHES DO AGENTE -->
+        <div class="modal hidden" id="agentDetailsModal">
+            <div class="modal-content glass" id="agentDetailsContent"></div>
+        </div>
+
+        <!-- MODAL DE CONFIRMAÇÃO -->
+        <div class="modal hidden" id="confirmModal">
+            <div class="modal-content glass confirm-modal">
+                <i class="fas fa-question-circle" style="font-size: 3rem; color: #f97316;"></i>
+                <h3 id="confirmTitle">Confirmar ação</h3>
+                <p id="confirmMessage">Tem certeza que deseja continuar?</p>
+                
+                <div class="modal-actions">
+                    <button class="btn-secondary" id="confirmNo">
+                        <i class="fas fa-times"></i> Não
+                    </button>
+                    <button class="btn-primary" id="confirmYes">
+                        <i class="fas fa-check"></i> Sim
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal (type="module" para Firebase) -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
