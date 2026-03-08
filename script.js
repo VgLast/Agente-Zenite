@@ -439,7 +439,7 @@ async function refreshAgentTabs() {
         
         commissionDetails.innerHTML = `
             <div>Total de alunos: <strong>${total}</strong></div>
-            <div>Blocos de 10: <strong>${Math.floor(total / 6)}</strong></div>
+            <div>Blocos de 6: <strong>${Math.floor(total / 6)}</strong></div>
             <div style="font-size: 2rem; color: #f97316; margin-top: 10px;">${comissao} MZN</div>
         `;
         
