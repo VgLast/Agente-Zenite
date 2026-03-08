@@ -435,11 +435,11 @@ async function refreshAgentTabs() {
         const alunos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
         const total = alunos.length;
-        const comissao = Math.floor(total / 10) * 270;
+        const comissao = Math.floor(total / 6) * 520;
         
         commissionDetails.innerHTML = `
             <div>Total de alunos: <strong>${total}</strong></div>
-            <div>Blocos de 10: <strong>${Math.floor(total / 10)}</strong></div>
+            <div>Blocos de 10: <strong>${Math.floor(total / 6)}</strong></div>
             <div style="font-size: 2rem; color: #f97316; margin-top: 10px;">${comissao} MZN</div>
         `;
         
@@ -831,10 +831,10 @@ window.processPayment = async (agentId) => {
         const studentsSnapshot = await getDocs(studentsQuery);
         const totalAlunos = studentsSnapshot.size;
         
-        const valorPagar = Math.floor(totalAlunos / 10) * 270;
+        const valorPagar = Math.floor(totalAlunos / 6) * 520;
         
         if (valorPagar === 0) {
-            showNotification('⚠️ Agente não tem comissão (menos de 10 alunos)', 'warning', 5000);
+            showNotification('⚠️ Agente não tem comissão (menos de 6 alunos)', 'warning', 5000);
             return;
         }
         
