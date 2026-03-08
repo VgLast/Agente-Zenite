@@ -25,12 +25,12 @@ import {
 
 // ==================== CONFIGURAÇÃO FIREBASE ====================
 const firebaseConfig = {
-    apiKey: "AIzaSyDlFmT4gGtdhBsaeYl1ebGPjPbJpQubXwM",
-    authDomain: "zeniteexplicacao-agente.firebaseapp.com",
-    projectId: "zeniteexplicacao-agente",
-    storageBucket: "zeniteexplicacao-agente.firebasestorage.app",
-    messagingSenderId: "341967015985",
-    appId: "1:341967015985:web:d0a6812f6eaac033048510"
+  apiKey: "AIzaSyC1k3S1mSzB4JSi2wFm_g0kuQCMfgTdXPw",
+  authDomain: "agente-zenite.firebaseapp.com",
+  projectId: "agente-zenite",
+  storageBucket: "agente-zenite.firebasestorage.app",
+  messagingSenderId: "673802919113",
+  appId: "1:673802919113:web:e10e26c7b2466312cf0118"
 };
 
 // Inicializar Firebase
